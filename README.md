@@ -7,4 +7,5 @@
 6. Therefore, the inputs & outputs of the demo models are slightly different from the original one.
 7. Due to the model's limitations, the English version does not perform well currently.
 8. We will make the exported method public later.
-9. In speaker confirmation mode, simply say the keywords, '添加声音' or '添加权限', directly, and the system will recognize your voice as permission. The same applies to deleting permissions.
+9. You have to approve the recorder permissions first, and then relaunch the app again.
+10. In speaker confirmation mode, simply say the keywords, '添加声音' or '添加权限', directly, and the system will recognize your voice as permission. The same applies to deleting permissions.
