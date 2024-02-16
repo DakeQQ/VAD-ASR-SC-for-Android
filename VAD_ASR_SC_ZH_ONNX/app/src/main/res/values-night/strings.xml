@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="send">发送 Send</string>
+    <string name="clear">清除 Clear</string>
+    <string name="type_your_message">请输入问题或更新唤醒词 \nType your message or arousal word</string>
+    <string name="restart">重启 Restart</string>
+    <string name="renew">更新 Renew</string>
+</resources>
