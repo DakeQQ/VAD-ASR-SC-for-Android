@@ -9,4 +9,4 @@
 8. We will make the exported method public later.
 9. You have to approve the recorder permissions first, and then relaunch the app again.
 10. In speaker confirmation mode, simply say the keywords, '添加声音' or '添加权限', directly, and the system will recognize your voice as permission. The same applies to deleting permissions.
-![Demo Animation](https://github.com/DakeQQ/VAD-ASR-SC-for-Android/blob/main/SVID_20240216_214355_1.gif?raw=true)
+![Demo Animation](https://github.com/DakeQQ/VAD-ASR-SC-for-Android/blob/main/asr.gif?raw=true)
