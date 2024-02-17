@@ -10,9 +10,10 @@
 9. You have to approve the recorder permissions first, and then relaunch the app again.
 10. It can be set to an awakening word of your choice, and the system will use a fuzzy tone to match it (Chinese awakening words only), minimizing the effect of natural speech variations.
 11. You can issue simple commands directly without invoking the awakening word. (wake free mode)
-12. Just simply say the keywords, 'adding voice' or 'adding premission'..., directly, and the system will recognize your voice as permission. The same applies to 'deleting permission'.
-13. Once permission is added, only the owner of the voice can modify it. The system will only recognize the authorized sound as an effective command.
-14. No guarantee for the permission's success ratio. For more information, please refer to the ERes2Net model introduction.
+12. If the sentence contains conjunctions such as 'and' or other continuation words, the system will engage in multi-intent judgment.
+13. Just simply say the keywords, 'adding voice' or 'adding premission'..., directly, and the system will recognize your voice as permission. The same applies to 'deleting permission'.
+14. Once permission is added, only the owner of the voice can modify it. The system will only recognize the authorized sound as an effective command.
+15. No guarantee for the permission's success ratio. For more information, please refer to the ERes2Net model introduction.
 
 # VAD+ASR+说话人确认-安卓
 1. 在Android设备上进行VAD + ASR + 说话人确认的演示。
@@ -26,8 +27,10 @@
 8. 首次使用时，您需要先授权录音权限，然后再重新启动应用程序。
 10. 自由设置您的唤醒词，系统将使用模糊音调来匹配它，减少口音的影响。
 11. 您可以直接发出简单命令，无需唤醒。（免唤醒模式）
-12. 只需直接说出关键词，如 '添加声音' 或 '添加权限'...，系统将识别您的声音为权限。 '删除权限' 也适用同样的操作。
-13. 一旦添加权限，只有声音的所有者才能修改它。系统仅识别授权声音为有效命令。
-14. 不保证权限识别成功率。更多信息，请参考ERes2Net模型介绍。
+12. 如果句子中包含“和”, "还有", "然后"...等等连词，系统将进行多意图判断。
+13. 只需直接说出关键词，如 '添加声音' 或 '添加权限'...，系统将识别您的声音为权限。 '删除权限' 也适用同样的操作。
+14. 一旦添加权限，只有声音的所有者才能修改它。系统仅识别授权声音为有效命令。
+15. 不保证权限识别成功率。更多信息，请参考ERes2Net模型介绍。
+
 # 演示结果 Demo Results
 ![Demo Animation](https://github.com/DakeQQ/VAD-ASR-SC-for-Android/blob/main/asr.gif?raw=true)
