@@ -8,7 +8,7 @@
 7. Due to the model's limitations, the English version does not perform well currently.
 8. We will make the exported method public later.
 9. You have to approve the recorder permissions first, and then relaunch the app again.
-10. It can be set to an awakening word of your choice, and the system will use a fuzzy tone to match it, minimizing the effect of natural speech variations.
+10. It can be set to an awakening word of your choice, and the system will use a fuzzy tone to match it (Chinese awakening words only), minimizing the effect of natural speech variations.
 11. You can issue simple commands directly without invoking the awakening word. (wake free mode)
 12. Just simply say the keywords, 'adding voice' or 'adding premission'..., directly, and the system will recognize your voice as permission. The same applies to 'deleting permission'.
 13. Once permission is added, only the owner of the voice can modify it. The system will only recognize the authorized sound as an effective command.
