@@ -15,7 +15,7 @@
 14. Once permission is added, only the owner of the voice can modify it. The system will only recognize the authorized sound as an effective command.
 15. No guarantee for the permission's success ratio. For more information, please refer to the ERes2Net model introduction.
 
-# VAD+ASR+说话人确认-安卓
+# 语音活动检测 + 自动语音辨识 + 说话人确认 - 安卓
 1. 在Android设备上进行VAD + ASR + 说话人确认的演示。
 2. 演示模型已上传至云端硬盘：https://drive.google.com/drive/folders/1ErEdY6QMyJCW0yuQR03If905IhdyAHFw?usp=drive_link
 3. 下载后，请将模型文件放入assets文件夹。
