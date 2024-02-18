@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
     private static final List<String> command_history = new ArrayList<>();
     private static final List<String> vocab_asr = new ArrayList<>();
     private static final List<List<String>> asr_record = new ArrayList<>();
+    private static final List<List<Integer>> asr_permission = new ArrayList<>();
     private static final boolean focus_mode = false;  // If true, the ASR only processes the awake_id queries until de-activate. If false, the ASR processes all mic queries, which means it can be activated and receive commands from different users at will.
     private static boolean awake_response = false;
     private static boolean strict_mode = false;
@@ -197,7 +198,9 @@ public class MainActivity extends AppCompatActivity {
         set_photo.setImageResource(R.drawable.psyduck);
         for (int i = 0; i < amount_of_mic_channel; i++) {
             List<String> temp = new ArrayList<>();
+            List<Integer> temp2 = new ArrayList<>();
             asr_record.add(temp);
+            asr_permission.add(temp2);
             arousal_awake[i] = false;
             speech2text[i] = "";
             print_count[i] = 0;
@@ -220,13 +223,16 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     long start_time = System.currentTimeMillis();
                     int[] result = Run_VAD_ASR(FRAME_BUFFER_SIZE_MONO_16k, recordedData, arousal_awake, focus_mode, temp_stop);
-                    System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
+//                    System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
                     int index_i = 0;
                     for (int i = 0; i < amount_of_mic_channel; i++) {
                         if (result[index_i] != -1) {
+                            int permission_check = 0;
                             if (amount_of_speakers > 0) {
-                                if (Compare_Similarity(i) == -1) {
-                                    continue;
+                                if (Compare_Similarity(i) != -1) {
+                                    permission_check = 1;
+                                } else {
+                                    permission_check = -1;
                                 }
                             }
                             continue_active[i] += 1;
@@ -334,8 +340,10 @@ public class MainActivity extends AppCompatActivity {
                                 pre_speech2text = inverse_check_usrInputText;
                                 if (save_record[i]) {
                                     asr_record.get(i).add(speech2text[i]);
+                                    asr_permission.get(i).add(permission_check);
                                     if (asr_record.get(i).size() > asr_temp_save_limit) {
                                         asr_record.get(i).remove(0);
+                                        asr_permission.get(i).remove(0);
                                     }
                                 }
                             }
@@ -347,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
                                 print_count[i] = print_threshold;
                                 if (asr_record.size() > 0) {
                                     asr_record.get(i).clear();
+                                    asr_permission.get(i).clear();
                                 }
                             }
                         }
@@ -354,6 +363,22 @@ public class MainActivity extends AppCompatActivity {
                     }
                     for (int k = 0; k < amount_of_mic_channel; k++) {
                         if ((!Objects.equals(speech2text[k], "")) && (continue_active[k] > continue_threshold)) {
+                            int permission_gate = 0;
+                            if (amount_of_speakers > 0) {
+                                for (int i = 0; i < asr_permission.get(k).size(); i++) {
+                                    permission_gate += asr_permission.get(k).get(i);
+                                }
+                            }
+                            System.out.println("permission_gate: " + permission_gate);
+                            if (permission_gate < 0) {
+                                speech2text[k] = "";
+                                pre_speech2text = new String[0];
+                                asr_record.get(k).clear();
+                                asr_permission.get(k).clear();
+                                save_record[k] = true;
+                                continue_active[k] = 0;
+                                continue;
+                            }
                             if (!arousal_awake[k]) {
                                 int compare_count = 0;
                                 if (english_arousal_words) {
@@ -438,6 +463,7 @@ public class MainActivity extends AppCompatActivity {
                                     speech2text[k] = "";
                                     pre_speech2text = new String[0];
                                     asr_record.get(k).clear();
+                                    asr_permission.get(k).clear();
                                     save_record[k] = true;
                                     awake_response = false;
                                     continue_active[k] = 0;
@@ -464,6 +490,7 @@ public class MainActivity extends AppCompatActivity {
                                         usrInputText = Sentence_Stitching(check_key_words, continue_hit_threshold);
                                         user_queue.add(finalK);
                                         asr_record.get(finalK).clear();
+                                        asr_permission.get(finalK).clear();
                                         command_queue.add(usrInputText);
                                         save_record[finalK] = true;
                                     });
@@ -472,6 +499,7 @@ public class MainActivity extends AppCompatActivity {
                                 speech2text[k] = "";
                                 pre_speech2text = new String[0];
                                 asr_record.get(k).clear();
+                                asr_permission.get(k).clear();
                                 save_record[k] = true;
                                 continue_active[k] = 0;
                             }
@@ -491,6 +519,7 @@ public class MainActivity extends AppCompatActivity {
                 speech2text[k] = "";
                 arousal_awake[k] = false;
                 asr_record.get(k).clear();
+                asr_permission.get(k).clear();
                 print_count[k] = 0;
             }
             for (int k = 0; k < amount_of_timers; k++) {
@@ -759,6 +788,7 @@ public class MainActivity extends AppCompatActivity {
             arousal_awake[k] = false;
             save_record[k] = true;
             asr_record.get(k).clear();
+            asr_permission.get(k).clear();
             print_count[k] = 0;
         }
         for (int k = 0; k < amount_of_timers; k++) {
