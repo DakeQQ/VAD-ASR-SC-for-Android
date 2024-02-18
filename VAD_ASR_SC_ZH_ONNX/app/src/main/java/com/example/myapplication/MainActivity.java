@@ -268,11 +268,11 @@ public class MainActivity extends AppCompatActivity {
                                 if (amount_of_speakers < score_pre_calculate_Speaker.length) {
                                     int speaker = Compare_Similarity(i);
                                     if (speaker != -1) {
-                                        addHistory(ChatMessage.TYPE_System,"Speaker_ID: " + speaker + voice_existed);
+                                        addHistory(ChatMessage.TYPE_SYSTEM,"Speaker_ID: " + speaker + voice_existed);
                                     } else {
                                         for (int j = 0; j < score_pre_calculate_Speaker.length; j++) {
                                             if (score_data_Speaker[j][0] == -999.f) {
-                                                addHistory(ChatMessage.TYPE_System,"Speaker_ID: " + j + voice_added);
+                                                addHistory(ChatMessage.TYPE_SYSTEM,"Speaker_ID: " + j + voice_added);
                                                 score_data_Speaker[j] = Run_Speaker_Confirm(i, model_hidden_size_Res2Net);
                                                 score_pre_calculate_Speaker[j] = (float) Math.sqrt(Dot(score_data_Speaker[j], score_data_Speaker[j]));
                                                 saveToFile(score_data_Speaker, cache_path + file_name_speakers);
@@ -282,20 +282,20 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 } else {
-                                    addHistory(ChatMessage.TYPE_System, voice_full);
+                                    addHistory(ChatMessage.TYPE_SYSTEM, voice_full);
                                 }
                                 temp_stop = i;
                             } else if (delete_voice) {  // Only the speaker's own voice is removed, as no ID extraction methods are applied.
                                 addHistory(ChatMessage.TYPE_USER, delete_permission);
                                 int speaker = Compare_Similarity(i);
                                 if (speaker != -1) {
-                                    addHistory(ChatMessage.TYPE_System, "Speaker_ID: " + speaker + voice_deleted);
+                                    addHistory(ChatMessage.TYPE_SYSTEM, "Speaker_ID: " + speaker + voice_deleted);
                                     score_data_Speaker[speaker][0] = -999.f;
                                     score_pre_calculate_Speaker[speaker] = 1.f;
                                     saveToFile(score_data_Speaker, cache_path + file_name_speakers);
                                     amount_of_speakers -= 1;
                                 } else {
-                                    addHistory(ChatMessage.TYPE_System, voice_unknown);
+                                    addHistory(ChatMessage.TYPE_SYSTEM, voice_unknown);
                                 }
                                 temp_stop = i;
                             } else {
@@ -369,8 +369,8 @@ public class MainActivity extends AppCompatActivity {
                                     permission_gate += asr_permission.get(k).get(i);
                                 }
                             }
-                            System.out.println("permission_gate: " + permission_gate);
                             if (permission_gate < 0) {
+                                addHistory(ChatMessage.TYPE_SYSTEM, "对不起，您没有权限。\nSorry, you don't have the permission.");
                                 speech2text[k] = "";
                                 pre_speech2text = new String[0];
                                 asr_record.get(k).clear();
@@ -543,7 +543,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     arousal_awake[timerID] = false;
-                    new Handler(Looper.getMainLooper()).post(() -> addHistory(ChatMessage.TYPE_System, exit_wake_up));
+                    new Handler(Looper.getMainLooper()).post(() -> addHistory(ChatMessage.TYPE_SYSTEM, exit_wake_up));
                     timers[timerID].cancel();
                     timers[timerID] = new Timer();
                 }
@@ -752,7 +752,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("NotifyDataSetChanged")
     private static void addHistory(int messageType, String result) {
         int lastMessageIndex = messages.size() - 1;
-        if (messageType == ChatMessage.TYPE_System) {
+        if (messageType == ChatMessage.TYPE_SYSTEM) {
             messages.add(new ChatMessage(messageType, result));
         } else if (lastMessageIndex >= 0 && messages.get(lastMessageIndex).type() == messageType) {
             if (messageType != ChatMessage.TYPE_USER ) {
@@ -866,10 +866,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        System.out.println("Speaker_ID: " + max_position + "\nmax_score: " + max_score);
         if (max_score > threshold_Speaker_Confirm) {
+            System.out.println("Speaker_ID: " + max_position + "/ max_score: " + max_score);
             return max_position;
         } else {
+            System.out.println("Speaker_ID: Unknown"  + "/ max_score: " + max_score);
             return -1;
         }
     }
