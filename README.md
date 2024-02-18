@@ -9,7 +9,7 @@
 8. We will make the exported method public later.
 9. You have to approve the recorder permissions first, and then relaunch the app again.
 10. The latency of ASR inference is about 25ms, and speaker confirmation also takes 25ms. VAD takes about 2ms. Therefore, even with all functions enabled, it remains faster than human perception.
-11. In the demo, we set the listening monitoring speed to a default of 16FPS (60ms per round) to make an offline ASR model approximate the performance of an online streaming one, while maintaining the offline model's accuracy.
+11. In the demo, we set the monitoring frequency to a default of 16FPS (60ms per round) to make an offline ASR model approximate the performance of an online streaming one, while maintaining the offline model's accuracy.
 12. It can be set to an awakening word of your choice, and the system will use a fuzzy tone to match it (Chinese awakening words only), minimizing the effect of natural speech variations.
 13. You can issue simple commands directly without invoking the awakening word. (wake free mode) For example: Open xxx, Close xxx, Navigate to xxx, Play someone's song...and so on.
 14. If the sentence contains conjunctions such as 'and' or other continuation words, the system will engage in multi-intent judgment.
@@ -28,7 +28,7 @@
 8. 我们未来会提供转换导出的方法。
 9. 首次使用时，您需要先授权录音权限，然后再重新启动应用程序。
 10. ASR推断的延迟大约为25毫秒，说话者确认也需要25毫秒。VAD大约需要2毫秒。因此，即使启用所有功能，其速度仍然快于人类的感知。
-11. 在演示中，我们将监听监控速度默认设置为16FPS（每轮60毫秒），以便让离线ASR模型接近在线流式处理模型的性能，同时保持离线模型的准确性。
+11. 在演示中，我们将计算频率默认设置为16FPS（每轮60毫秒），以便让离线ASR模型接近在线流式处理模型的性能，同时保持离线模型的准确性。
 12. 自由设置您的唤醒词，系统将使用模糊音调来匹配它，减少口音的影响。
 13. 您可以直接发出简单命令，无需唤醒。（免唤醒模式）例如：打开xxx、关闭xxx、导航到xxx、播放某人的歌曲...等
 14. 如果句子中包含“和”, "还有", "然后"...等等连词，系统将进行多意图判断。
