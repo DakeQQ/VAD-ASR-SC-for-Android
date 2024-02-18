@@ -33,7 +33,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         switch (message.type()) {
             case ChatMessage.TYPE_USER -> backgroundColorRes = R.color.userMessageBackground;
             case ChatMessage.TYPE_SERVER -> backgroundColorRes = R.color.serverMessageBackground;
-            case ChatMessage.TYPE_System -> backgroundColorRes = R.color.serverMessageBackground2;
+            case ChatMessage.TYPE_SYSTEM -> backgroundColorRes = R.color.serverMessageBackground2;
         }
         holder.messageText.setBackgroundResource(backgroundColorRes);
     }
