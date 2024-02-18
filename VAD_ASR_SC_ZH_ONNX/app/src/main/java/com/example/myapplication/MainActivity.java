@@ -867,10 +867,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if (max_score > threshold_Speaker_Confirm) {
-            System.out.println("Speaker_ID: " + max_position + "/ max_score: " + max_score);
+            System.out.println("Speaker_ID: " + max_position + " / max_score: " + max_score);
             return max_position;
         } else {
-            System.out.println("Speaker_ID: Unknown"  + "/ max_score: " + max_score);
+            System.out.println("Speaker_ID: Unknown"  + " / max_score: " + max_score);
             return -1;
         }
     }
