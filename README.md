@@ -11,7 +11,7 @@
 10. The latency of ASR inference is about 25ms, and speaker confirmation also takes 25ms. VAD takes about 2ms. Therefore, even with all functions enabled, it remains faster than human perception.
 11. In the demo, we set the listening monitoring speed to a default of 16FPS (60ms per round) to make an offline ASR model approximate the performance of an online streaming one, while maintaining the offline model's accuracy.
 12. It can be set to an awakening word of your choice, and the system will use a fuzzy tone to match it (Chinese awakening words only), minimizing the effect of natural speech variations.
-13. You can issue simple commands directly without invoking the awakening word. (wake free mode)
+13. You can issue simple commands directly without invoking the awakening word. (wake free mode) For example: Open xxx, Close xxx, Navigate to xxx, Play someone's song...and so on.
 14. If the sentence contains conjunctions such as 'and' or other continuation words, the system will engage in multi-intent judgment.
 15. Just simply say the keywords, 'adding voice' or 'adding premission'..., directly, and the system will recognize your voice as permission. The same applies to 'deleting permission'.
 16. Once permission is added, only the owner of the voice can modify it. The system will only recognize the authorized sound as an effective command.
@@ -30,7 +30,7 @@
 10. ASR推断的延迟大约为25毫秒，说话者确认也需要25毫秒。VAD大约需要2毫秒。因此，即使启用所有功能，其速度仍然快于人类的感知。
 11. 在演示中，我们将监听监控速度默认设置为16FPS（每轮60毫秒），以便让离线ASR模型接近在线流式处理模型的性能，同时保持离线模型的准确性。
 12. 自由设置您的唤醒词，系统将使用模糊音调来匹配它，减少口音的影响。
-13. 您可以直接发出简单命令，无需唤醒。（免唤醒模式）
+13. 您可以直接发出简单命令，无需唤醒。（免唤醒模式）例如：打开xxx、关闭xxx、导航到xxx、播放某人的歌曲...等
 14. 如果句子中包含“和”, "还有", "然后"...等等连词，系统将进行多意图判断。
 15. 只需直接说出关键词，如 '添加声音' 或 '添加权限'...，系统将识别您的声音为权限。 '删除权限' 也适用同样的操作。
 16. 一旦添加权限，只有声音的所有者才能修改它。系统仅识别授权声音为有效命令。
