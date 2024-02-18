@@ -370,7 +370,9 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             if (permission_gate < 0) {
-                                addHistory(ChatMessage.TYPE_SYSTEM, "对不起，您没有权限。\nSorry, you don't have the permission.");
+                                if (continue_active[k] > continue_threshold + continue_threshold) {
+                                    addHistory(ChatMessage.TYPE_SYSTEM, "对不起，您没有权限。\nSorry, you don't have the permission.");
+                                }
                                 speech2text[k] = "";
                                 pre_speech2text = new String[0];
                                 asr_record.get(k).clear();
