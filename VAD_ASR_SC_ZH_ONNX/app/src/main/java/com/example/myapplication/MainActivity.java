@@ -98,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String voice_full = "声音权限的存储空间已满。\nIt is out of storage space.";
     private static final String voice_deleted = "\n已删除此声音权限。\nThe speaker's permission has been deleted.";
     private static final String voice_unknown = "此声音权限以前未添加过。\nThe speaker's permission has not been added before.";
-    private static final String add_success = "添加声纹权限\nAdd the voice permission.";
-    private static final String delete_success = "删除声纹权限\nDelete the voice permission.";
+    private static final String add_permission = "添加声纹权限\nAdd the voice permission.";
+    private static final String delete_permission = "删除声纹权限\nDelete the voice permission.";
     private static final String[] speech2text = new String[amount_of_mic_channel];
     private static final String[] mic_owners = {"主驾驶-Master", "副驾驶-Co_Pilot", "左后座-Lefter", "右后座-Righter"};  // The corresponding name of the mic. This size must >= amount_of_mic.
     private static final String[] add_voice_permission = {"添加声音", "添加权限", "添加限制", "加入权限", "加入声纹"}; // The key words for add the permission of voice control.
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             if (add_voice) {
-                                addHistory(ChatMessage.TYPE_USER, add_success);
+                                addHistory(ChatMessage.TYPE_USER, add_permission);
                                 if (amount_of_speakers < score_pre_calculate_Speaker.length) {
                                     int speaker = Compare_Similarity(i);
                                     if (speaker != -1) {
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 temp_stop = i;
                             } else if (delete_voice) {  // Only the speaker's own voice is removed, as no ID extraction methods are applied.
-                                addHistory(ChatMessage.TYPE_USER, delete_success);
+                                addHistory(ChatMessage.TYPE_USER, delete_permission);
                                 int speaker = Compare_Similarity(i);
                                 if (speaker != -1) {
                                     addHistory(ChatMessage.TYPE_System, "Speaker_ID: " + speaker + voice_deleted);
