@@ -225,6 +225,8 @@ public class MainActivity extends AppCompatActivity {
                     int index_i = 0;
                     for (int i = 0; i < amount_of_mic_channel; i++) {
                         if (result[index_i] != -1) {
+                            continue_active[i] += 1;
+                            print_count[i] = 0;
                             int permission_check = 0;
                             if (amount_of_speakers > 0) {
                                 if (Compare_Similarity(i) != -1) {
@@ -233,8 +235,6 @@ public class MainActivity extends AppCompatActivity {
                                     permission_check = -1;
                                 }
                             }
-                            continue_active[i] += 1;
-                            print_count[i] = 0;
                             for (int j = 0; j < pre_allocate_num_words; j++) {
                                 if (result[index_i + j] != -1) {
                                     asr_string_builder.append(vocab_asr.get(result[index_i + j]));
