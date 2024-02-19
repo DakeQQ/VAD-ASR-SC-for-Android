@@ -70,20 +70,20 @@ const int vad_buffer_size = vad_in_cache_size * sizeof(float);
 const int res2net_input_size = 2800;  // 1 * 35 * 80
 const int res2net_buffer_size = res2net_input_size * sizeof(float);
 int bluesteinConvolution_size_factor_asr;
+int noise_count = 1;
 const float emphasis_factor = 0.97f; // The smaller value means greater emphasis.
 const float sample_rate_asr = 16000.f;
 const float speech_2_noise_ratio = 1.f;
 const float one_minus_speech_threshold = 0.26f;  // In FunASR FSMN-VAD, it refers to (1 - speech_threshold). The larger value means greater sensitivity, but may induce incorrect ASR results.
 const float one_minus_speech_threshold_for_awake = 0.3f;
-const float snr_threshold = -100.f;
-const float decibel_silent_threshold = -100.f;
-const float noise_frame_num_used_for_snr_factor = 0.99f;  // (noise_frame_num_used_for_snr - 1) / noise_frame_num_used_for_snr
+const float snr_threshold = 10.f;  // Judge if (speech_db - environment_db) >= snr_threshold or not.
 const float loop_time = 0.06f;  // unit: second. It used for pre-allocate. Therefore, the value must >= real cost per loop.
 const float pi = 3.1415926536f;
 const float window_factor_asr = 0.012295862f; // 2 * pi / (frame_length - 1)
 const float noise_factor = 1.f;  // noise amplify factor
 const float inv_fft_points_asr = 0.001953125f;  //  1 / fft_points_asr
 const float inv_16bit_factor = 0.000030517578f;  // 1 / 32768
+const float inv_reference_air_pressure_square = 2500000000.f;  //  1 / (0.00002 * 0.00002)
 bool remove_dc_offset = false;  // Enable it if you need.
 bool add_noise = false;  // Enable it if you need.
 std::vector<int32_t> speech_length(1, feature_sliding_window_size);
@@ -93,7 +93,7 @@ std::vector<float> inv_std_asr(asr_input_shape,0.f);
 std::vector<float> neg_mean_vad(vad_input_shape,0.f);
 std::vector<float> inv_std_vad(vad_input_shape,0.f);
 std::vector<float> Blackman_Harris_factor_asr(fft_points_asr,0.f);
-std::vector<float> noise_average_decibel(amount_of_mic_channel,-100.f);  //  Not constant
+std::vector<float> noise_average_decibel(amount_of_mic_channel,30.f);  // It usually db<=30 in a quiet room.
 std::vector<float> white_noise(total_elements_in_sliding_window,0.f);
 std::vector<std::vector<float>> features_for_asr(amount_of_mic_channel,std::vector<float> (total_elements_in_sliding_window,0.f));
 std::vector<std::vector<float>> features_for_vad(amount_of_mic_channel,std::vector<float> (total_elements_in_sliding_window,0.f));
@@ -105,10 +105,3 @@ std::vector<std::complex<float>> bluesteinsequence_b_asr;
 std::vector<std::vector<std::complex<float>>> Radix_factor;
 std::vector<std::vector<std::complex<float>>> Radix_factor_inv;
 std::vector<std::pair<int, std::vector<float>>> fbanks_asr;
-
-
-
-
-
-
-
