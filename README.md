@@ -37,4 +37,5 @@
 17. 不保证权限识别成功率。更多信息，请参考ERes2Net模型介绍。
 
 # 演示结果 Demo Results
+1. 此GIF以每秒7帧的速度生成。因此，ASR看起来可能不够流畅。This GIF was generated at 7fps. Therefore, it may not look smooth enough.
 ![Demo Animation](https://github.com/DakeQQ/VAD-ASR-SC-for-Android/blob/main/asr.gif?raw=true)
