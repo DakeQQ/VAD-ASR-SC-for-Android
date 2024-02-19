@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String[] second_key_words = {" ", "开", "启", " ", "动", "闭", "上", " ", "掉", "掉", "止", "断", "嘴", "束", " ", "放", "航", "度", "量", "速", "量", "音", "一", "一"};
     private static String usrInputText = "";
     private static String arousal_word = arousal_word_default;
-    private static String[] pre_speech2text = new String[1];
     private static final StringBuilder asr_string_builder = new StringBuilder();
     private static List<Pinyin> arousal_pinyinList;
     private static final List<Integer> user_queue = new ArrayList<>();
@@ -130,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
     private static boolean got_key_words = false;
     private static boolean english_arousal_words = false;  // Due to the arousal_word_default was set as '你好大可'.
     private static final boolean[] arousal_awake = new boolean[amount_of_mic_channel];
-    private static final boolean[] save_record = new boolean[amount_of_mic_channel];
     Button clearButton;
     Button sendButton;
     Button restartButton;
@@ -223,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     long start_time = System.currentTimeMillis();
                     int[] result = Run_VAD_ASR(FRAME_BUFFER_SIZE_MONO_16k, recordedData, arousal_awake, focus_mode, temp_stop);
-//                    System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
+                    System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
                     int index_i = 0;
                     for (int i = 0; i < amount_of_mic_channel; i++) {
                         if (result[index_i] != -1) {
@@ -299,52 +297,11 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 temp_stop = i;
                             } else {
-                                String[] check_usrInputText = speech2text[i].split("");
-                                String[] inverse_check_usrInputText = new String[check_usrInputText.length];
-                                int n = 0;
-                                for (int j = check_usrInputText.length - 1; j >= 0; j--) {
-                                    inverse_check_usrInputText[n] = check_usrInputText[j];
-                                    n++;
-                                }
-                                int compare_count = 0;
-                                for (int j = 0; j < check_usrInputText.length; j++) {  // Only compare the adjacent words
-                                    for (int k = j - 1; k <= j + 1; k++) {
-                                        if (k < 0) {
-                                            continue;
-                                        } else if (k >= pre_speech2text.length) {
-                                            break;
-                                        }
-                                        if (Objects.equals(inverse_check_usrInputText[j], pre_speech2text[k])) {
-                                            compare_count += 1;
-                                            if (compare_count >= check_usrInputText.length) {
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (compare_count >= check_usrInputText.length) {
-                                    if (Objects.equals(inverse_check_usrInputText[0], pre_speech2text[0])) {
-                                        if (pre_speech2text.length >= check_usrInputText.length) {
-                                            print_count[i] += 1;
-                                            if (print_count[i] >= print_threshold) {
-                                                save_record[i] = false;
-                                                temp_stop = i;
-                                            }
-                                        } else {
-                                            print_count[i] = 1;
-                                        }
-                                    }
-                                } else {
-                                    print_count[i] = 0;
-                                }
-                                pre_speech2text = inverse_check_usrInputText;
-                                if (save_record[i]) {
-                                    asr_record.get(i).add(speech2text[i]);
-                                    asr_permission.get(i).add(permission_check);
-                                    if (asr_record.get(i).size() > asr_temp_save_limit) {
-                                        asr_record.get(i).remove(0);
-                                        asr_permission.get(i).remove(0);
-                                    }
+                                asr_record.get(i).add(speech2text[i]);
+                                asr_permission.get(i).add(permission_check);
+                                if (asr_record.get(i).size() > asr_temp_save_limit) {
+                                    asr_record.get(i).remove(0);
+                                    asr_permission.get(i).remove(0);
                                 }
                             }
                         } else {
@@ -374,10 +331,8 @@ public class MainActivity extends AppCompatActivity {
                                     addHistory(ChatMessage.TYPE_SYSTEM, "对不起，您没有权限。\nSorry, you don't have the permission.");
                                 }
                                 speech2text[k] = "";
-                                pre_speech2text = new String[0];
                                 asr_record.get(k).clear();
                                 asr_permission.get(k).clear();
-                                save_record[k] = true;
                                 continue_active[k] = 0;
                                 continue;
                             }
@@ -463,10 +418,8 @@ public class MainActivity extends AppCompatActivity {
                                     });
                                     temp_stop = k;
                                     speech2text[k] = "";
-                                    pre_speech2text = new String[0];
                                     asr_record.get(k).clear();
                                     asr_permission.get(k).clear();
-                                    save_record[k] = true;
                                     awake_response = false;
                                     continue_active[k] = 0;
                                     continue;
@@ -478,8 +431,6 @@ public class MainActivity extends AppCompatActivity {
                                 if (print_count[k] >= print_threshold) {
                                     temp_stop = k;
                                     speech2text[k] = "";
-                                    pre_speech2text = new String[0];
-                                    save_record[k] = false;
                                     continue_active[k] = 0;
                                     for (int i = continue_threshold; i > 0; i--) {
                                         if (check_key_words.size() > i) {
@@ -494,15 +445,12 @@ public class MainActivity extends AppCompatActivity {
                                         asr_record.get(finalK).clear();
                                         asr_permission.get(finalK).clear();
                                         command_queue.add(usrInputText);
-                                        save_record[finalK] = true;
                                     });
                                 }
                             } else {
                                 speech2text[k] = "";
-                                pre_speech2text = new String[0];
                                 asr_record.get(k).clear();
                                 asr_permission.get(k).clear();
-                                save_record[k] = true;
                                 continue_active[k] = 0;
                             }
                         }
@@ -516,7 +464,6 @@ public class MainActivity extends AppCompatActivity {
             awake_response = false;
             multiMicRecorder.stopRecording();
             asr_string_builder.setLength(0);
-            pre_speech2text = new String[0];
             for (int k = 0; k < amount_of_mic_channel; k++) {
                 speech2text[k] = "";
                 arousal_awake[k] = false;
@@ -788,7 +735,6 @@ public class MainActivity extends AppCompatActivity {
         for (int k = 0; k < amount_of_mic_channel; k++) {
             speech2text[k] = "";
             arousal_awake[k] = false;
-            save_record[k] = true;
             asr_record.get(k).clear();
             asr_permission.get(k).clear();
             print_count[k] = 0;
@@ -796,7 +742,6 @@ public class MainActivity extends AppCompatActivity {
         for (int k = 0; k < amount_of_timers; k++) {
             timerManager.resetTimer(k);
         }
-        pre_speech2text = new String[0];
         awake_response = false;
         sub_commands = 0;
         showToast( cleared,false);
@@ -893,8 +838,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     s2_array = input_string.get(i).split("");
                 }
-                for (int j = 0; j < s1_array.length - 1; j++) {
-                    for (int k = 0; k < s2_array.length - 1; k++) {
+                for (int j = 0; j < s1_array.length; j++) {
+                    for (int k = 0; k < s2_array.length; k++) {
                         if (Objects.equals(s1_array[j], s2_array[k])) {
                             switch (continue_hit_threshold) {
                                 case 1 -> {
@@ -904,35 +849,41 @@ public class MainActivity extends AppCompatActivity {
                                     k = s2_array.length;
                                 }
                                 case 2 -> {
-                                    if (Objects.equals(s1_array[j + 1], s2_array[k + 1])) {
-                                        target_position_1 = j;
-                                        target_position_2 = k;
-                                        j = s1_array.length;
-                                        k = s2_array.length;
+                                    if ((j + 1 < s1_array.length) && (k + 1 < s2_array.length)) {
+                                        if (Objects.equals(s1_array[j + 1], s2_array[k + 1])) {
+                                            target_position_1 = j;
+                                            target_position_2 = k;
+                                            j = s1_array.length;
+                                            k = s2_array.length;
+                                        }
                                     }
                                 }
                                 case 3 -> {
-                                    if (Objects.equals(s1_array[j + 1], s2_array[k + 1])) {
-                                        if ((j + 2 < s1_array.length) && (k + 2 < s2_array.length)) {
-                                            if (Objects.equals(s1_array[j + 2], s2_array[k + 2])) {
-                                                target_position_1 = j;
-                                                target_position_2 = k;
-                                                j = s1_array.length;
-                                                k = s2_array.length;
+                                    if ((j + 1 < s1_array.length) && (k + 1 < s2_array.length)) {
+                                        if (Objects.equals(s1_array[j + 1], s2_array[k + 1])) {
+                                            if ((j + 2 < s1_array.length) && (k + 2 < s2_array.length)) {
+                                                if (Objects.equals(s1_array[j + 2], s2_array[k + 2])) {
+                                                    target_position_1 = j;
+                                                    target_position_2 = k;
+                                                    j = s1_array.length;
+                                                    k = s2_array.length;
+                                                }
                                             }
                                         }
                                     }
                                 }
                                 case 4 -> {
-                                    if (Objects.equals(s1_array[j + 1], s2_array[k + 1])) {
-                                        if ((j + 2 < s1_array.length) && (k + 2 < s2_array.length)) {
-                                            if (Objects.equals(s1_array[j + 2], s2_array[k + 2])) {
-                                                if ((j + 3 < s1_array.length) && (k + 3 < s2_array.length)) {
-                                                    if (Objects.equals(s1_array[j + 3], s2_array[k + 3])) {
-                                                        target_position_1 = j;
-                                                        target_position_2 = k;
-                                                        j = s1_array.length;
-                                                        k = s2_array.length;
+                                    if ((j + 1 < s1_array.length) && (k + 1 < s2_array.length)) {
+                                        if (Objects.equals(s1_array[j + 1], s2_array[k + 1])) {
+                                            if ((j + 2 < s1_array.length) && (k + 2 < s2_array.length)) {
+                                                if (Objects.equals(s1_array[j + 2], s2_array[k + 2])) {
+                                                    if ((j + 3 < s1_array.length) && (k + 3 < s2_array.length)) {
+                                                        if (Objects.equals(s1_array[j + 3], s2_array[k + 3])) {
+                                                            target_position_1 = j;
+                                                            target_position_2 = k;
+                                                            j = s1_array.length;
+                                                            k = s2_array.length;
+                                                        }
                                                     }
                                                 }
                                             }
