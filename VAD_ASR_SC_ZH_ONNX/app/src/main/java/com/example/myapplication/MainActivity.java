@@ -1069,7 +1069,7 @@ public class MainActivity extends AppCompatActivity {
             stringBuilder.append("\n");
         }
         try (FileWriter writer = new FileWriter(filePath)) {
-            new File(filePath).getParentFile().mkdirs();
+            Objects.requireNonNull(new File(filePath).getParentFile()).mkdirs();
             writer.write(stringBuilder.toString());
         } catch (IOException e) {
             e.printStackTrace();
