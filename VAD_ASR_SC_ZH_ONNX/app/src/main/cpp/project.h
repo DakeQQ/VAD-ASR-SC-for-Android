@@ -76,7 +76,7 @@ const float sample_rate_asr = 16000.f;
 const float speech_2_noise_ratio = 1.f;
 const float one_minus_speech_threshold = 0.27f;  // In FunASR FSMN-VAD, it refers to (1 - speech_threshold). The larger value means greater sensitivity, but may induce incorrect ASR results.
 const float one_minus_speech_threshold_for_awake = 0.3f;
-const float snr_threshold = 10.f;  // Judge if (speech_db - environment_db) >= snr_threshold or not.
+const float snr_threshold = 5.f;  // Judge if (speech_db - environment_db) >= snr_threshold or not.
 const float loop_time = 0.06f;  // unit: second. It used for pre-allocate. Therefore, the value must >= real cost per loop.
 const float pi = 3.1415926536f;
 const float window_factor_asr = 0.012295862f; // 2 * pi / (frame_length - 1)
