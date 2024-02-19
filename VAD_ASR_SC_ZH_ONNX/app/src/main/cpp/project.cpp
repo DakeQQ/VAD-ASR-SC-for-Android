@@ -997,8 +997,7 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
                         for (size_t j = index_i; j < index_i + audio_length; j++) {
                             sum += history_signal[k][j] * history_signal[k][j];
                         }
-                        sum = sum * fft_points_asr / static_cast<float> (audio_length);
-                        float cur_decibel = 10.f * std::log10f(sum + 0.000001f);  // avoid log(0)
+                        float cur_decibel = 10.f * std::log10f(sum * inv_reference_air_pressure_square / static_cast<float> (audio_length) + 0.00002f);  // avoid log(0)
                         float sum_score = 0.f;
                         for (size_t j = index_j; j < index_j + silent_pdf_ids; j++) {
                             sum_score += reinterpret_cast<float*> (output_tensors_buffer_0)[j];
@@ -1011,7 +1010,7 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
                             sum_score += 1.f;
                         }
                         if (sum_score <= speech_threshold) { // be simplified. The original expression: exp(log(1 - sum_score)) >= exp(speech_2_noise_ratio * log(sum_score)) + speech_threshold
-                            if ((cur_decibel - noise_average_decibel[k] >= snr_threshold) & (cur_decibel >= decibel_silent_threshold)) {  // cur_snr >= snr_threshold & cur_decibel >= decibel_silent_threshold
+                            if (noise_count * (cur_decibel - snr_threshold) >= noise_average_decibel[k]) {
                                 frame_state[k] += 1;  // +1 means current frame is judged to activation state.
                                 if (jarousal_awake) {
                                     if (frame_state[k] > 2) {  // '2' it is a editable value. Modify if you need to adjust the VAD de-activate sensitivity.
@@ -1026,11 +1025,12 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
                                 break;
                             }
                         } else {
-                            if (noise_average_decibel[k] < -99.9f) {
-                                noise_average_decibel[k] = cur_decibel;
-                            } else {
-                                noise_average_decibel[k] = cur_decibel + noise_average_decibel[k] *
-                                                                         noise_frame_num_used_for_snr_factor;
+                            noise_count++;
+                            noise_average_decibel[k] += cur_decibel;
+                            if (noise_count > 999) {  // Take only the recent average noise dB into account.
+                                noise_average_decibel[k] /= noise_count;
+                                noise_average_decibel[k] *= 500;
+                                noise_count = 500;
                             }
                         }
                         index_i += hop_size;
