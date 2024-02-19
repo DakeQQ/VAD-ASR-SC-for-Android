@@ -997,7 +997,7 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
                         for (size_t j = index_i; j < index_i + audio_length; j++) {
                             sum += history_signal[k][j] * history_signal[k][j];
                         }
-                        float cur_decibel = 10.f * std::log10f(sum * inv_reference_air_pressure_square / static_cast<float> (audio_length) + 0.00002f);  // avoid log(0)
+                        float cur_decibel = 10.f * std::log10f(sum * (inv_reference_air_pressure_square / static_cast<float> (audio_length)) + 0.00002f);  // avoid log(0)
                         float sum_score = 0.f;
                         for (size_t j = index_j; j < index_j + silent_pdf_ids; j++) {
                             sum_score += reinterpret_cast<float*> (output_tensors_buffer_0)[j];
