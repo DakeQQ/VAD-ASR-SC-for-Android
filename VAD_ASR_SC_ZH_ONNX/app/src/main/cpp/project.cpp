@@ -965,6 +965,7 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
     {
         int hop_size = (number_of_history_audio - 1) * audio_length / (number_of_frame_state - 1);
         float speech_threshold;
+        float inv_reference_factor = inv_reference_air_pressure_square / static_cast<float> (audio_length);
         for (int k = 0; k < amount_of_mic_channel; k++) {
             if (k != jstop_asr) {
                 if (monitoring_all | awake_channel[k]) {
@@ -992,7 +993,6 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
                     std::move(reinterpret_cast<float*> (output_tensors_buffer_1), reinterpret_cast<float*> (output_tensors_buffer_1) + vad_in_cache_size, vad_in_cache[k].begin());
                     size_t index_i = 0;
                     size_t index_j = total_elements_output_vad - number_of_frame_state * vad_output_shape;
-                    float inv_reference_factor = inv_reference_air_pressure_square / static_cast<float> (audio_length);
                     for (int i = 0; i < number_of_frame_state; i++) {
                         float sum = 0.f;
                         for (size_t j = index_i; j < index_i + audio_length; j++) {
