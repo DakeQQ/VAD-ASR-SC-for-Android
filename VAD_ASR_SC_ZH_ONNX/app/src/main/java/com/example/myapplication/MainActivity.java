@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String[] delete_voice_permission = {"删除声音", "删掉声音", "删除权限", "删掉权限", "移除限制", "不要权限"};  // The key words for delete the permission of voice control.
     private static final String[] and_words = {"和", "跟", "还有", "然后", "还要", "再", "后", "接着", "加上", "之后", "以及", "最后", "还想", "与"};  // This set is used to split multi-intention tasks.
     private static final String[] open_words = {"打开", "开", "开启", "启动"};   // This set is used to continue the previous tasks' intentions. Foe example: "打开窗户和空调" -> "1.打开窗户; 2.开启空调;"
-    private static final String[] close_words = {"关", "关掉", "关闭", "关上", "切", "切掉", "停掉", "停止", "切断", "闭嘴", "结束"};  // This set is used to continue the previous tasks' intentions.
+    private static final String[] close_words = {"关", "关掉", "关闭", "关上", "切", "切掉", "停掉", "停止", "切断", "闭嘴", "别说了", "结束"};  // This set is used to continue the previous tasks' intentions.
     private static final String[] first_key_words = {"关", "打", "开", "开", "启", "关", "关", "切", "切", "停", "停", "切", "闭", "结", "播", "播", "导", "温", "风", "风", "音", "声", "上", "下"};
     // first_key_words & second_key_words are used to match common commands without wake-up. Further commands require activation.
     private static final String[] second_key_words = {" ", "开", "启", " ", "动", "闭", "上", " ", "掉", "掉", "止", "断", "嘴", "束", " ", "放", "航", "度", "量", "速", "量", "音", "一", "一"};
