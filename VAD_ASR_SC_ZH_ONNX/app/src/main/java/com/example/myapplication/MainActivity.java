@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String delete_permission = "删除声纹权限\nDelete the voice permission.";
     private static final String[] speech2text = new String[amount_of_mic_channel];
     private static final String[] mic_owners = {"主驾驶-Master", "副驾驶-Co_Pilot", "左后座-Lefter", "右后座-Righter"};  // The corresponding name of the mic. This size must >= amount_of_mic.
-    private static final String[] add_voice_permission = {"添加声音", "添加权限", "添加限制", "加入权限", "加入声纹"}; // The key words for add the permission of voice control.
-    private static final String[] delete_voice_permission = {"删除声音", "删掉声音", "删除权限", "删掉权限", "移出权限", "移除限制"};  // The key words for delete the permission of voice control.
+    private static final String[] add_voice_permission = {"添加声音", "添加权限", "添加限制", "加入权限", "加入声纹", "添加声纹"}; // The key words for add the permission of voice control.
+    private static final String[] delete_voice_permission = {"删除声音", "删掉声音", "删除权限", "删掉权限", "移除限制", "不要权限"};  // The key words for delete the permission of voice control.
     private static final String[] and_words = {"和", "跟", "还有", "然后", "还要", "再", "后", "接着", "加上", "之后", "以及", "最后", "还想", "与"};  // This set is used to split multi-intention tasks.
     private static final String[] open_words = {"打开", "开", "开启", "启动"};   // This set is used to continue the previous tasks' intentions. Foe example: "打开窗户和空调" -> "1.打开窗户; 2.开启空调;"
     private static final String[] close_words = {"关", "关掉", "关闭", "关上", "切", "切掉", "停掉", "停止", "切断", "闭嘴", "结束"};  // This set is used to continue the previous tasks' intentions.
