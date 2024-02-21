@@ -72,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
     private static final float[] invStd_asr = new float[paraformer_input_shape];
     private static final float[] negMean_vad = new float[vad_input_shape];
     private static final float[] invStd_vad = new float[vad_input_shape];
-    private static final float[][] score_data_Speaker = new float[5][model_hidden_size_Res2Net];  // Pre-allocate the storage space for speaker confirm.
-    private static final float[] score_pre_calculate_Speaker = new float[score_data_Speaker.length];
+    private static final float[] score_pre_calculate_Speaker = new float[5];
+    private static final float[][] score_data_Speaker = new float[score_pre_calculate_Speaker.length][model_hidden_size_Res2Net];  // Pre-allocate the storage space for speaker confirm.
     private static final String arousal_word_default = "你好大可";  // If use English words, lower case only. Due to the limitations of the open-source model, the English ASR is not performing well at the moment.
     private static final String file_name_vocab_asr = "vocab_asr.txt";
     private static final String file_name_negMean_asr = "negMean_asr.txt";
@@ -100,10 +100,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String voice_unknown = "此声音权限以前未添加过。\nThe speaker's permission has not been added before.";
     private static final String add_permission = "添加声纹权限\nAdd the voice permission.";
     private static final String delete_permission = "删除声纹权限\nDelete the voice permission.";
+    private static final String no_permission = "对不起，您没有权限。\nSorry, you don't have the permission.";
     private static final String[] speech2text = new String[amount_of_mic_channel];
     private static final String[] mic_owners = {"主驾驶-Master", "副驾驶-Co_Pilot", "左后座-Lefter", "右后座-Righter"};  // The corresponding name of the mic. This size must >= amount_of_mic.
-    private static final String[] add_voice_permission = {"添加声音", "添加权限", "添加限制", "加入权限", "加入声纹", "添加声纹"}; // The key words for add the permission of voice control.
-    private static final String[] delete_voice_permission = {"删除声音", "删掉声音", "删除权限", "删掉权限", "移除限制", "不要权限"};  // The key words for delete the permission of voice control.
+    private static final String[] add_voice_permission = {"添加声音", "添加权限", "添加限制", "加入权限", "加入声纹", "添加声纹", "添加声", "添加权", "加入权", "加入声"}; // The key words for add the permission of voice control.
+    private static final String[] delete_voice_permission = {"删除声音", "删掉声音", "删除权限", "删掉权限", "移除限制", "不要权限", "删除声", "删掉声", "删除权", "删掉权", "移除限", "不要权"};  // The key words for delete the permission of voice control.
     private static final String[] and_words = {"和", "跟", "还有", "然后", "还要", "再", "后", "接着", "加上", "之后", "以及", "最后", "还想", "与"};  // This set is used to split multi-intention tasks.
     private static final String[] open_words = {"打开", "开", "开启", "启动"};   // This set is used to continue the previous tasks' intentions. Foe example: "打开窗户和空调" -> "1.打开窗户; 2.开启空调;"
     private static final String[] close_words = {"关", "关掉", "关闭", "关上", "切", "切掉", "停掉", "停止", "切断", "闭嘴", "别说了", "结束"};  // This set is used to continue the previous tasks' intentions.
@@ -221,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     long start_time = System.currentTimeMillis();
                     int[] result = Run_VAD_ASR(FRAME_BUFFER_SIZE_MONO_16k, recordedData, arousal_awake, focus_mode, temp_stop);
-                    System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
+//                    System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
                     int index_i = 0;
                     for (int i = 0; i < amount_of_mic_channel; i++) {
                         if (result[index_i] != -1) {
@@ -328,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if (permission_gate < 0) {
                                 if (continue_active[k] > continue_threshold + continue_threshold) {
-                                    addHistory(ChatMessage.TYPE_SYSTEM, "对不起，您没有权限。\nSorry, you don't have the permission.");
+                                    addHistory(ChatMessage.TYPE_SYSTEM, no_permission);
                                 }
                                 speech2text[k] = "";
                                 asr_record.get(k).clear();
@@ -825,7 +826,7 @@ public class MainActivity extends AppCompatActivity {
         if (input_string.size() > 1) {
             boolean is_english_words = false;
             String[] s1_array = input_string.get(0).split("");
-            if (s1_array[0].matches("^[A-Za-z]+$")) {
+            if (s1_array[0].matches("^[A-Za-z]+$")) {   // Use the first word to determine whether it is English or not. Obviously, this method will fail with sentences that are mixed (ZH+EN).
                 s1_array = input_string.get(0).split(" ");
                 is_english_words = true;
             }
@@ -838,14 +839,14 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     s2_array = input_string.get(i).split("");
                 }
-                for (int j = 0; j < s1_array.length; j++) {
+                for (int j = s1_array.length - 1; j > -1 ; j--) {
                     for (int k = 0; k < s2_array.length; k++) {
                         if (Objects.equals(s1_array[j], s2_array[k])) {
                             switch (continue_hit_threshold) {
                                 case 1 -> {
                                     target_position_1 = j;
                                     target_position_2 = k;
-                                    j = s1_array.length;
+                                    j = -1;
                                     k = s2_array.length;
                                 }
                                 case 2 -> {
@@ -853,7 +854,7 @@ public class MainActivity extends AppCompatActivity {
                                         if (Objects.equals(s1_array[j + 1], s2_array[k + 1])) {
                                             target_position_1 = j;
                                             target_position_2 = k;
-                                            j = s1_array.length;
+                                            j = -1;
                                             k = s2_array.length;
                                         }
                                     }
@@ -865,7 +866,7 @@ public class MainActivity extends AppCompatActivity {
                                                 if (Objects.equals(s1_array[j + 2], s2_array[k + 2])) {
                                                     target_position_1 = j;
                                                     target_position_2 = k;
-                                                    j = s1_array.length;
+                                                    j = -1;
                                                     k = s2_array.length;
                                                 }
                                             }
@@ -881,7 +882,7 @@ public class MainActivity extends AppCompatActivity {
                                                         if (Objects.equals(s1_array[j + 3], s2_array[k + 3])) {
                                                             target_position_1 = j;
                                                             target_position_2 = k;
-                                                            j = s1_array.length;
+                                                            j = -1;
                                                             k = s2_array.length;
                                                         }
                                                     }
@@ -1059,7 +1060,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    private void saveToFile(float[][] float2DArray, String filePath) {
+    private static void saveToFile(float[][] float2DArray, String filePath) {
         StringBuilder stringBuilder = new StringBuilder();
         for (float[] row : float2DArray) {
             for (float value : row) {
