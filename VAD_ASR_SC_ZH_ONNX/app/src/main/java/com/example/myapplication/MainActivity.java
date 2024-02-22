@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private static int reduplication_words_count = 0;
     private static int temp_stop = -1;
     private static int awake_id = -1;
+    private static int speaker_id = -1;
     private static int amount_of_speakers = 0; // The speakers who have permission are stored in the speaker_features.txt file.
     static final int font_size = 18;
     private static final float threshold_Speaker_Confirm = 0.36f;  //  You can print the max_score, which was calculated in the Compare_Similarity, to assign a appropriate value.
@@ -108,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String[] and_words = {"和", "跟", "还有", "然后", "还要", "再", "后", "接着", "加上", "之后", "以及", "最后", "还想", "与"};  // This set is used to split multi-intention tasks.
     private static final String[] open_words = {"打开", "开", "开启", "启动"};   // This set is used to continue the previous tasks' intentions. Foe example: "打开窗户和空调" -> "1.打开窗户; 2.开启空调;"
     private static final String[] close_words = {"关", "关掉", "关闭", "关上", "切", "切掉", "停掉", "停止", "切断", "闭嘴", "别说了", "结束"};  // This set is used to continue the previous tasks' intentions.
-    private static final String[] first_key_words = {"关", "打", "开", "开", "启", "关", "关", "切", "切", "停", "停", "切", "闭", "结", "播", "播", "导", "温", "风", "风", "音", "声", "上", "下"};
+    private static final String[] first_key_words = {"打", "开", "启", "关", "关", "关", "切", "停", "停", "切", "闭", "结", "播", "导", "温", "风", "风", "音", "声", "上", "下"};
     // first_key_words & second_key_words are used to match common commands without wake-up. Further commands require activation.
-    private static final String[] second_key_words = {" ", "开", "启", " ", "动", "闭", "上", " ", "掉", "掉", "止", "断", "嘴", "束", " ", "放", "航", "度", "量", "速", "量", "音", "一", "一"};
+    private static final String[] second_key_words = {"开", "启", "动", "闭", "上", "掉", "掉", "掉", "止", "断", "嘴", "束", "放", "航", "度", "量", "速", "量", "音", "一", "一"};
     private static String usrInputText = "";
     private static String arousal_word = arousal_word_default;
     private static final StringBuilder asr_string_builder = new StringBuilder();
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
     private static final List<String> vocab_asr = new ArrayList<>();
     private static final List<List<String>> asr_record = new ArrayList<>();
     private static final List<List<Integer>> asr_permission = new ArrayList<>();
+    private static final List<List<Integer>> speaker_history = new ArrayList<>();
     private static final boolean focus_mode = false;  // If true, the ASR only processes the awake_id queries until de-activate. If false, the ASR processes all mic queries, which means it can be activated and receive commands from different users at will.
     private static boolean awake_response = false;
     private static boolean strict_mode = false;
@@ -200,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
             List<Integer> temp2 = new ArrayList<>();
             asr_record.add(temp);
             asr_permission.add(temp2);
+            speaker_history.add(temp2);
             arousal_awake[i] = false;
             speech2text[i] = "";
             print_count[i] = 0;
@@ -222,19 +225,23 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     long start_time = System.currentTimeMillis();
                     int[] result = Run_VAD_ASR(FRAME_BUFFER_SIZE_MONO_16k, recordedData, arousal_awake, focus_mode, temp_stop);
-//                    System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
+                    System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
                     int index_i = 0;
                     for (int i = 0; i < amount_of_mic_channel; i++) {
                         if (result[index_i] != -1) {
                             continue_active[i] += 1;
                             print_count[i] = 0;
                             int permission_check = 0;
+                            int speaker;
                             if (amount_of_speakers > 0) {
-                                if (Compare_Similarity(i) != -1) {
+                                speaker = Compare_Similarity(i);
+                                if (speaker != -1) {
                                     permission_check = 1;
                                 } else {
                                     permission_check = -1;
                                 }
+                            } else {
+                                speaker = -1;
                             }
                             for (int j = 0; j < pre_allocate_num_words; j++) {
                                 if (result[index_i + j] != -1) {
@@ -265,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
                             if (add_voice) {
                                 addHistory(ChatMessage.TYPE_USER, add_permission);
                                 if (amount_of_speakers < score_pre_calculate_Speaker.length) {
-                                    int speaker = Compare_Similarity(i);
+                                    speaker = Compare_Similarity(i);
                                     if (speaker != -1) {
                                         addHistory(ChatMessage.TYPE_SYSTEM,"Speaker_ID: " + speaker + voice_existed);
                                     } else {
@@ -286,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
                                 temp_stop = i;
                             } else if (delete_voice) {  // Only the speaker's own voice is removed, as no ID extraction methods are applied.
                                 addHistory(ChatMessage.TYPE_USER, delete_permission);
-                                int speaker = Compare_Similarity(i);
+                                speaker = Compare_Similarity(i);
                                 if (speaker != -1) {
                                     addHistory(ChatMessage.TYPE_SYSTEM, "Speaker_ID: " + speaker + voice_deleted);
                                     score_data_Speaker[speaker][0] = -999.f;
@@ -300,9 +307,11 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 asr_record.get(i).add(speech2text[i]);
                                 asr_permission.get(i).add(permission_check);
+                                speaker_history.get(i).add(speaker);
                                 if (asr_record.get(i).size() > asr_temp_save_limit) {
                                     asr_record.get(i).remove(0);
                                     asr_permission.get(i).remove(0);
+                                    speaker_history.get(i).remove(0);
                                 }
                             }
                         } else {
@@ -314,6 +323,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (asr_record.size() > 0) {
                                     asr_record.get(i).clear();
                                     asr_permission.get(i).clear();
+                                    speaker_history.get(i).clear();
                                 }
                             }
                         }
@@ -326,6 +336,22 @@ public class MainActivity extends AppCompatActivity {
                                 for (int i = 0; i < asr_permission.get(k).size(); i++) {
                                     permission_gate += asr_permission.get(k).get(i);
                                 }
+                                int[] count = new int[score_pre_calculate_Speaker.length];
+                                for (int i = 0; i < speaker_history.get(k).size(); i++) {
+                                    if (speaker_history.get(k).get(i) != -1) {
+                                        count[speaker_history.get(k).get(i)] += 1;
+                                    }
+                                }
+                                int max_count = count[0];
+                                speaker_id = 0;
+                                for (int i = 1; i < score_pre_calculate_Speaker.length; i++) {
+                                    if (count[i] > max_count) {
+                                        max_count = count[i];
+                                        speaker_id = i;
+                                    }
+                                }
+                            } else {
+                                speaker_id = -1;
                             }
                             if (permission_gate < 0) {
                                 if (continue_active[k] > continue_threshold + continue_threshold) {
@@ -334,6 +360,7 @@ public class MainActivity extends AppCompatActivity {
                                 speech2text[k] = "";
                                 asr_record.get(k).clear();
                                 asr_permission.get(k).clear();
+                                speaker_history.get(k).clear();
                                 continue_active[k] = 0;
                                 continue;
                             }
@@ -421,6 +448,7 @@ public class MainActivity extends AppCompatActivity {
                                     speech2text[k] = "";
                                     asr_record.get(k).clear();
                                     asr_permission.get(k).clear();
+                                    speaker_history.get(k).clear();
                                     awake_response = false;
                                     continue_active[k] = 0;
                                     continue;
@@ -445,6 +473,7 @@ public class MainActivity extends AppCompatActivity {
                                         user_queue.add(finalK);
                                         asr_record.get(finalK).clear();
                                         asr_permission.get(finalK).clear();
+                                        speaker_history.get(finalK).clear();
                                         command_queue.add(usrInputText);
                                     });
                                 }
@@ -452,6 +481,7 @@ public class MainActivity extends AppCompatActivity {
                                 speech2text[k] = "";
                                 asr_record.get(k).clear();
                                 asr_permission.get(k).clear();
+                                speaker_history.get(k).clear();
                                 continue_active[k] = 0;
                             }
                         }
@@ -470,6 +500,7 @@ public class MainActivity extends AppCompatActivity {
                 arousal_awake[k] = false;
                 asr_record.get(k).clear();
                 asr_permission.get(k).clear();
+                speaker_history.get(k).clear();
                 print_count[k] = 0;
             }
             for (int k = 0; k < amount_of_timers; k++) {
@@ -686,7 +717,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             sub_commands -= 1;
-            addHistory(ChatMessage.TYPE_SERVER,"\nUser: " + mic_owners[awake_id] + "\nRun the command: " + "\n" + usrInputText);
+            addHistory(ChatMessage.TYPE_SERVER,"\nSpeaker_ID: " + speaker_id + "\nMic: " + mic_owners[awake_id] + "\nRun the command: " + usrInputText);
             myInit();
         });
     }
@@ -738,6 +769,7 @@ public class MainActivity extends AppCompatActivity {
             arousal_awake[k] = false;
             asr_record.get(k).clear();
             asr_permission.get(k).clear();
+            speaker_history.get(k).clear();
             print_count[k] = 0;
         }
         for (int k = 0; k < amount_of_timers; k++) {
