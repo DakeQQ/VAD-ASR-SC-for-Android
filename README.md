@@ -10,7 +10,7 @@
 9. You have to approve the recorder permissions first, and then relaunch the app again.
 10. The time cost of ASR inference is about 25ms, and speaker confirmation also takes 25ms. VAD takes about 2ms.
 11. In the demo, we set the monitoring frequency to a default of 16FPS (60ms per round) to make an offline ASR model approximate the performance of an online streaming one, while maintaining the offline model's accuracy.
-12. It can be set to an awakening word of your choice, and the system will use a fuzzy tone to match it (Chinese awakening words only), minimizing the effect of natural speech variations.
+12. It can be set to an awakening word of your choice, and the system will use a fuzzy tone to match it (Chinese awakening words only), minimizing the effect of natural speech variations. After waking up, it defaults to staying active for 30 seconds (adjustable).
 13. You can issue simple commands directly without invoking the awakening word. (wake free mode) For example: Open xxx, Close xxx, Navigate to xxx, Play someone's song...and so on.
 14. If the sentence contains conjunctions such as 'and' or other common continuation words, the system will engage in multi-intent judgment.
 15. Just simply say the keywords, 'adding voice' or 'adding premission'..., directly, and the system will recognize your voice as permission. The same applies to 'deleting permission'.
@@ -30,7 +30,7 @@
 10. 首次使用时，您需要先授权录音权限，然后再重新启动应用程序。
 11. ASR推理的耗时大约为25毫秒，说话者确认也需要25毫秒。VAD大约需要2毫秒。
 12. 在演示中，我们将计算频率默认设置为16FPS（每轮60毫秒），以便让离线ASR模型接近在线流式处理模型的性能，同时保持离线模型的准确性。
-13. 自由设置您的唤醒词，系统将使用模糊音调来匹配它，减少口音的影响。
+13. 自由设置您的唤醒词，系统将使用模糊音调来匹配它，减少口音的影响。醒来后，默认保持活动30秒（可调）。
 14. 您可以直接发出简单命令，无需唤醒。（免唤醒模式）例如：打开xxx、关闭xxx、导航到xxx、播放某人的歌曲...等
 15. 如果句子中包含“和”, "还有", "然后"...等等常见的连词，系统将进行多意图判断。
 16. 只需直接说出关键词，如 '添加声音' 或 '添加权限'...，系统将识别您的声音为权限。 '删除权限' 也适用同样的操作。
