@@ -1019,8 +1019,6 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
                                         break;
                                     }
                                 }
-                            } else if (trigger_ASR[k]) {
-                                break;
                             }
                         } else {
                             noise_count++;
@@ -1042,7 +1040,7 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
         if (i != jstop_asr) {
             if (monitoring_all | awake_channel[i]) {
                 if (trigger_ASR[i]) {
-                    if (frame_state[i] < number_of_frame_state) {
+                    if (frame_state[i] < number_of_frame_state) { // 'It is a editable logic. Modify if you need to adjust the VAD de-activate sensitivity.
                         trigger_ASR[i] = false;
                     }
                 } else {
