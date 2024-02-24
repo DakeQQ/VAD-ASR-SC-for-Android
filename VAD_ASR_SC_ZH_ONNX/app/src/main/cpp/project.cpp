@@ -989,7 +989,7 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
                     ort_runtime_A->GetTensorMutableData(output_tensors_A[1], &output_tensors_buffer_1);
                     std::move(reinterpret_cast<float*> (output_tensors_buffer_1), reinterpret_cast<float*> (output_tensors_buffer_1) + vad_in_cache_size, vad_in_cache[k].begin());
                     size_t index_i = 0;
-                    size_t index_j = total_elements_output_vad - number_of_frame_state * vad_output_shape;
+                    size_t index_j = vad_index_offset;
                     for (int i = 0; i < number_of_frame_state; i++) {
                         float sum = 0.f;
                         for (size_t j = index_i; j < index_i + audio_length; j++) {
