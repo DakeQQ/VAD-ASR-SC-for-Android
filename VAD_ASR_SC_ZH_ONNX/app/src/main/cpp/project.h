@@ -60,6 +60,7 @@ const int number_of_frame_state = 5;  // For VAD
 const int silent_pdf_ids = 1;  // top_K, The output of VAD is (1, x, 248), takes the top_K/248 into summation.
 const int total_elements_in_sliding_window = asr_input_shape * feature_sliding_window_size;  // For 1 batch
 const int total_elements_output_vad = vad_output_shape * total_elements_in_sliding_window / vad_input_shape;  // For 1 batch
+const int vad_index_offset = total_elements_output_vad - number_of_frame_state * vad_output_shape;
 const int BluesteinSequenceLengthThreshold = 46341;
 const int amount_of_mic_channel = 1;  // The same variable in the MainActivity.java, please modify at the same time.
 const int pre_allocate_num_words = 25;  // The same variable in the MainActivity.java, please modify at the same time.
