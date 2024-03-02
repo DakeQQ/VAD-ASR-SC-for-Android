@@ -198,11 +198,9 @@ public class MainActivity extends AppCompatActivity {
         answerView.setAdapter(chatAdapter);
         set_photo.setImageResource(R.drawable.psyduck);
         for (int i = 0; i < amount_of_mic_channel; i++) {
-            List<String> temp = new ArrayList<>();
-            List<Integer> temp2 = new ArrayList<>();
-            asr_record.add(temp);
-            asr_permission.add(temp2);
-            speaker_history.add(temp2);
+            asr_record.add(new ArrayList<>());
+            asr_permission.add(new ArrayList<>());
+            speaker_history.add(new ArrayList<>());
             arousal_awake[i] = false;
             speech2text[i] = "";
             print_count[i] = 0;
