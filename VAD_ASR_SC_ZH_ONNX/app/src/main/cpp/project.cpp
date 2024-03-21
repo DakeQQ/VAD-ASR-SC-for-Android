@@ -1045,7 +1045,7 @@ Java_com_example_myapplication_MainActivity_Run_1VAD_1ASR(JNIEnv *env, jclass cl
                     }
                 } else {
                     if (awake_channel[i]) {
-                        if (frame_state[i] > 2) {   // '2' it is a editable value. Modify if you need to adjust the VAD de-activate sensitivity.
+                        if (frame_state[i] > 2) {   // '2' it is a editable value. Modify if you need to adjust the VAD activate sensitivity.
                             trigger_ASR[i] = true;
                         }
                     } else {
