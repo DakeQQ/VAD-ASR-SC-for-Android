@@ -39,6 +39,8 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private static final int SAMPLE_RATE = 48000;  // The sampling rate.
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private static int awake_id = -1;
     private static int speaker_id = -1;
     private static int amount_of_speakers = 0; // The speakers who have permission are stored in the speaker_features.txt file.
-    static final int font_size = 18;
+    public static final int font_size = 18;
     private static final float threshold_Speaker_Confirm = 0.36f;  //  You can print the max_score, which was calculated in the Compare_Similarity, to assign a appropriate value.
     private static final int[] continue_active = new int[amount_of_mic_channel];
     private static final int[] print_count = new int[amount_of_mic_channel];
@@ -146,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
     private static final Random random = new Random();
     private static final TimerManager timerManager = new TimerManager(amount_of_timers);
     private static MultiMicRecorder multiMicRecorder;
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     static {
         System.loadLibrary("myapplication");
@@ -157,10 +160,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         AssetManager mgr = getAssets();
-        runOnUiThread(() -> Load_Models_0(mgr,false,false,false,false,false,false)); // Actually, there are no options that you can set to 'true' to achieve better performance than with ONNX Runtime itself.
-        runOnUiThread(() -> Load_Models_1(mgr,false,false,false,false,false,false)); // Therefore, we do not use an if-else statement to determine whether the loading was successful or not.
-        runOnUiThread(() -> Load_Models_2(mgr,false,false,false,false,false,false));
-        runOnUiThread(() -> {
+        executorService.execute(()->{
+            Load_Models_0(mgr,false,false,false,false,false,false);
+            Load_Models_1(mgr,false,false,false,false,false,false);
+        });
+        executorService.execute(()->{
+            Load_Models_2(mgr,false,false,false,false,false,false);
             Read_Assets(file_name_vocab_asr, mgr);
             Read_Assets(file_name_negMean_asr, mgr);
             Read_Assets(file_name_invStd_asr, mgr);
@@ -168,8 +173,6 @@ public class MainActivity extends AppCompatActivity {
             Read_Assets(file_name_invStd_vad, mgr);
             Read_Assets(file_name_response, mgr);
             Pre_Process(negMean_asr, invStd_asr, negMean_vad, invStd_vad);
-        });
-        runOnUiThread(() -> {
             for (float[] data : score_data_Speaker) {
                 data[0] = -999.f;
             }
@@ -198,9 +201,11 @@ public class MainActivity extends AppCompatActivity {
         answerView.setAdapter(chatAdapter);
         set_photo.setImageResource(R.drawable.psyduck);
         for (int i = 0; i < amount_of_mic_channel; i++) {
-            asr_record.add(new ArrayList<>());
-            asr_permission.add(new ArrayList<>());
-            speaker_history.add(new ArrayList<>());
+            List<String> temp = new ArrayList<>();
+            List<Integer> temp2 = new ArrayList<>();
+            asr_record.add(temp);
+            asr_permission.add(temp2);
+            speaker_history.add(temp2);
             arousal_awake[i] = false;
             speech2text[i] = "";
             print_count[i] = 0;
@@ -220,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             while (recording) {
                 float[] recordedData = multiMicRecorder.Read_PCM_Data();
-                runOnUiThread(() -> {
+                executorService.execute(()->{
                     long start_time = System.currentTimeMillis();
                     int[] result = Run_VAD_ASR(FRAME_BUFFER_SIZE_MONO_16k, recordedData, arousal_awake, focus_mode, temp_stop);
                     System.out.println("ASR_Time_Cost: " + (System.currentTimeMillis() - start_time) + "ms");
@@ -268,15 +273,17 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             if (add_voice) {
-                                addHistory(ChatMessage.TYPE_USER, add_permission);
+                                runOnUiThread(()-> addHistory(ChatMessage.TYPE_USER, add_permission));
                                 if (amount_of_speakers < score_pre_calculate_Speaker.length) {
                                     speaker = Compare_Similarity(i);
                                     if (speaker != -1) {
-                                        addHistory(ChatMessage.TYPE_SYSTEM,"Speaker_ID: " + speaker + voice_existed);
+                                        final int spk = speaker;
+                                        runOnUiThread(()-> addHistory(ChatMessage.TYPE_SYSTEM, "Speaker_ID: " + spk + voice_existed));
                                     } else {
                                         for (int j = 0; j < score_pre_calculate_Speaker.length; j++) {
                                             if (score_data_Speaker[j][0] == -999.f) {
-                                                addHistory(ChatMessage.TYPE_SYSTEM,"Speaker_ID: " + j + voice_added);
+                                                final int jj = j;
+                                                runOnUiThread(()-> addHistory(ChatMessage.TYPE_SYSTEM,"Speaker_ID: " + jj + voice_added));
                                                 score_data_Speaker[j] = Run_Speaker_Confirm(i, model_hidden_size_Res2Net);
                                                 score_pre_calculate_Speaker[j] = (float) Math.sqrt(Dot(score_data_Speaker[j], score_data_Speaker[j]));
                                                 saveToFile(score_data_Speaker, cache_path + file_name_speakers);
@@ -286,20 +293,21 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 } else {
-                                    addHistory(ChatMessage.TYPE_SYSTEM, voice_full);
+                                    runOnUiThread(()-> addHistory(ChatMessage.TYPE_SYSTEM, voice_full));
                                 }
                                 temp_stop = i;
                             } else if (delete_voice) {  // Only the speaker's own voice is removed, as no ID extraction methods are applied.
-                                addHistory(ChatMessage.TYPE_USER, delete_permission);
+                                runOnUiThread(()-> addHistory(ChatMessage.TYPE_USER, delete_permission));
                                 speaker = Compare_Similarity(i);
                                 if (speaker != -1) {
-                                    addHistory(ChatMessage.TYPE_SYSTEM, "Speaker_ID: " + speaker + voice_deleted);
+                                    final int spk = speaker;
+                                    runOnUiThread(()-> addHistory(ChatMessage.TYPE_SYSTEM, "Speaker_ID: " + spk + voice_deleted));
                                     score_data_Speaker[speaker][0] = -999.f;
                                     score_pre_calculate_Speaker[speaker] = 1.f;
                                     saveToFile(score_data_Speaker, cache_path + file_name_speakers);
                                     amount_of_speakers -= 1;
                                 } else {
-                                    addHistory(ChatMessage.TYPE_SYSTEM, voice_unknown);
+                                    runOnUiThread(()-> addHistory(ChatMessage.TYPE_SYSTEM, voice_unknown));
                                 }
                                 temp_stop = i;
                             } else {
@@ -318,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
                                 print_count[i] += 1;
                             } else {
                                 print_count[i] = print_threshold;
-                                if (asr_record.size() > 0) {
+                                if (!asr_record.isEmpty()) {
                                     asr_record.get(i).clear();
                                     asr_permission.get(i).clear();
                                     speaker_history.get(i).clear();
@@ -353,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if (permission_gate < 0) {
                                 if (continue_active[k] > continue_threshold + continue_threshold) {
-                                    addHistory(ChatMessage.TYPE_SYSTEM, no_permission);
+                                    runOnUiThread(()-> addHistory(ChatMessage.TYPE_SYSTEM, no_permission));
                                 }
                                 speech2text[k] = "";
                                 asr_record.get(k).clear();
@@ -430,16 +438,16 @@ public class MainActivity extends AppCompatActivity {
                             }
                             List<String> check_key_words = Match_Key_Words(asr_record.get(k));
                             if (arousal_awake[k] | got_key_words) {
+                                int finalK = k;
                                 if (end_of_answer) {
-                                    addHistory(ChatMessage.TYPE_USER, speech2text[k]);
+                                    runOnUiThread(()-> addHistory(ChatMessage.TYPE_USER, speech2text[finalK]));
                                 }
                                 if (awake_response) {
-                                    int finalK1 = k;
                                     runOnUiThread(() -> {
                                         if (end_of_answer) {
-                                            addHistory(ChatMessage.TYPE_SERVER, "Response to:\n回复" + mic_owners[finalK1] + ": " + wake_up_response.get(random.nextInt(wake_up_response.size())));
+                                            addHistory(ChatMessage.TYPE_SERVER, "Response to:\n回复" + mic_owners[finalK] + ": " + wake_up_response.get(random.nextInt(wake_up_response.size())));
                                         } else {
-                                            showToast("接收来自" + mic_owners[finalK1] + "的唤醒。" + "\nNew wake up by " + mic_owners[finalK1],false);
+                                            showToast("接收来自" + mic_owners[finalK] + "的唤醒。" + "\nNew wake up by " + mic_owners[finalK],false);
                                         }
                                     });
                                     temp_stop = k;
@@ -465,7 +473,6 @@ public class MainActivity extends AppCompatActivity {
                                             break;
                                         }
                                     }
-                                    int finalK = k;
                                     runOnUiThread(() -> {
                                         usrInputText = Sentence_Stitching(check_key_words, continue_hit_threshold);
                                         user_queue.add(finalK);
@@ -715,7 +722,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             sub_commands -= 1;
-            addHistory(ChatMessage.TYPE_SERVER,"\nSpeaker_ID: " + speaker_id + "\nMic: " + mic_owners[awake_id] + "\nRun the command: " + usrInputText);
+            runOnUiThread(() -> addHistory(ChatMessage.TYPE_SERVER,"\nSpeaker_ID: " + speaker_id + "\nMic: " + mic_owners[awake_id] + "\nRun the command: " + usrInputText));
             myInit();
         });
     }
@@ -800,7 +807,7 @@ public class MainActivity extends AppCompatActivity {
         awake_id = -1;
     }
     private void Run_Command_Queue() {
-        if (end_of_answer & command_queue.size() > 0) {
+        if (end_of_answer & !command_queue.isEmpty()) {
             end_of_answer = false;
             usrInputText = command_queue.get(0);
             command_history.add(usrInputText);  // Temporary not using in this demo.
@@ -813,6 +820,7 @@ public class MainActivity extends AppCompatActivity {
             if (command_history.size() > asr_temp_save_limit) {
                 command_history.remove(0);
             }
+
             sendButton.performClick();
         }
     }
@@ -947,7 +955,7 @@ public class MainActivity extends AppCompatActivity {
                 return Arrays.toString(s1_array).replaceAll("[,\\[\\] ]", "");
             }
         } else {
-            if (input_string.size() != 0) {
+            if (!input_string.isEmpty()) {
                 return input_string.get(0);
             } else {
                 return "";
