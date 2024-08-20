@@ -17,7 +17,9 @@
 16. Just simply say the keywords, 'adding voice' or 'adding premission'..., directly, and the system will recognize your voice as permission. The same applies to 'deleting permission'.
 17. Once permission is added, only the owner of the voice can modify it. The system will only recognize the authorized sound as an effective command.
 18. No guarantee for the permission's success ratio. For more information, please refer to the ERes2Net model introduction.
-19. See more projects: https://dakeqq.github.io/overview/
+19. The quantization method for the model can be seen in the folder "Do_Quantize".
+20. The q4(uint4) quantization method is not currently recommended because the "MatMulNBits" operator in ONNX Runtime is performing poorly.
+21. See more projects: https://dakeqq.github.io/overview/
 
 # 语音活动检测 + 自动语音辨识 + 说话人确认 - 安卓
 1. 在Android设备上进行VAD + ASR + 说话人确认的演示。
@@ -39,7 +41,9 @@
 17. 只需直接说出关键词，如 '添加声音' 或 '添加权限'...，系统将识别您的声音为权限。 '删除权限' 也适用同样的操作。
 18. 一旦添加权限，只有声音的所有者才能修改它。系统仅识别授权声音为有效命令。
 19. 不保证权限识别成功率。更多信息，请参考ERes2Net模型介绍。
-20. 看更多項目: https://dakeqq.github.io/overview/
+20. 模型的量化方法可以在文件夹 "Do_Quantize" 中查看。
+21. 现在不建议使用q4(uint4)量化方法, 因为ONNX Runtime的运算符"MatMulNBits"表现不佳。
+22. 看更多項目: https://dakeqq.github.io/overview/
 
 # 演示结果 Demo Results
 1. 此GIF以每秒7帧的速度生成。因此，ASR看起来可能不够流畅。This GIF was generated at 7fps. Therefore, it may not look smooth enough.
